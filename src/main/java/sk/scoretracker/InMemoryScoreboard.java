@@ -46,7 +46,7 @@ public class InMemoryScoreboard implements Scoreboard {
         throw new UnsupportedOperationException("Method not implemented yet.");
     }
 
-    private String getMatchId(String homeTeam, String awayTeam) {
+    String getMatchId(String homeTeam, String awayTeam) {
         // Ideally we would want a nicer non-string unique ID, but for simplicity
         // we now operate only on Strings names of teams.
         return homeTeam + "#" + awayTeam;

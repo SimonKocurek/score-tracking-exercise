@@ -14,8 +14,8 @@ public interface Scoreboard {
     Match startMatch(String homeTeam, String awayTeam);
 
     /**
-     * Update score of a match.
-     * @throws IllegalArgumentException if match is not currently in progress.
+     * Update score of a match. If score stays the same, the method will just return the match.
+     * @throws IllegalArgumentException if match is not currently in progress or score has been decreased (this should not happen during Football matches).
      */
     Match updateMatchScore(String homeTeam, int homeScore, String awayTeam, int awayScore);
 
