@@ -33,7 +33,24 @@ public class InMemoryScoreboard implements Scoreboard {
 
     @Override
     public Match updateMatchScore(String homeTeam, int homeScore, String awayTeam, int awayScore) {
-        throw new UnsupportedOperationException("Method not implemented yet.");
+        var matchId = getMatchId(homeTeam, awayTeam);
+
+        var match = runningMatches.getOrDefault(matchId, null);
+        if (match == null) {
+            throw new IllegalArgumentException("Match between " + homeTeam + " and " + awayTeam + " is not running.");
+        }
+
+        // We don't need to check for score < 0, because Match score always starts at 0, as per the interface contract.
+        if (homeScore < match.homeScore()) {
+            throw new IllegalArgumentException("Score " + homeScore + " for home team " + homeTeam + " cannot be smaller than their current score " + match.homeScore() + " . Decreasing scores in Football are not allowed.");
+        }
+        if (awayScore < match.awayScore()) {
+            throw new IllegalArgumentException("Score " + awayScore + " for away team " + awayTeam + " cannot be smaller than their current score " + match.awayScore() + " . Decreasing scores in Football are not allowed.");
+        }
+
+        var result = match.withUpdatedScore(homeScore, awayScore);
+        runningMatches.put(matchId, result);
+        return result;
     }
 
     @Override
