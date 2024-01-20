@@ -9,7 +9,7 @@ public interface Scoreboard {
 
     /**
      * Start a new match, assuming initial score 0 – 0 and adding it the scoreboard.
-     * @throws IllegalArgumentException if match is already in progress.
+     * @throws IllegalArgumentException if match is already in progress or team is already playing with other opponent.
      */
     Match startMatch(String homeTeam, String awayTeam);
 
