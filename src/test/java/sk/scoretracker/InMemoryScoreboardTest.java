@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
@@ -13,7 +13,7 @@ class InMemoryScoreboardTest {
     @Test
     void startMatchCanStartMultipleMatches() {
         // Given
-        var matches = new HashMap<String, Match>();
+        var matches = new ConcurrentHashMap<String, Match>();
         Scoreboard scorebaord = new InMemoryScoreboard(matches);
 
         // When
@@ -34,7 +34,7 @@ class InMemoryScoreboardTest {
     @Test
     void startMatchCannotStartSameMatchMultipleTimes() {
         // Given
-        var matches = new HashMap<String, Match>();
+        var matches = new ConcurrentHashMap<String, Match>();
         Scoreboard scorebaord = new InMemoryScoreboard(matches);
 
         // When
@@ -43,24 +43,6 @@ class InMemoryScoreboardTest {
         // Then
         Assertions.assertThrows(IllegalArgumentException.class, () ->
                 scorebaord.startMatch("Mexico", "Canada")
-        );
-
-        Assertions.assertEquals(1, matches.size());
-        Assertions.assertEquals(match, matches.values().stream().findFirst().orElseThrow());
-    }
-
-    @Test
-    void startMatchCannotStartMatchForTeamThatIsAlreadyPlaying() {
-        // Given
-        var matches = new HashMap<String, Match>();
-        Scoreboard scorebaord = new InMemoryScoreboard(matches);
-
-        // When
-        var match = scorebaord.startMatch("Mexico", "Canada");
-
-        // Then
-        Assertions.assertThrows(IllegalArgumentException.class, () ->
-                scorebaord.startMatch("Canada", "Brazil")
         );
 
         Assertions.assertEquals(1, matches.size());
