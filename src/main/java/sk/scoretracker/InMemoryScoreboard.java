@@ -55,7 +55,15 @@ public class InMemoryScoreboard implements Scoreboard {
 
     @Override
     public Match finishMatch(String homeTeam, String awayTeam) {
-        throw new UnsupportedOperationException("Method not implemented yet.");
+        var matchId = getMatchId(homeTeam, awayTeam);
+
+        var match = runningMatches.getOrDefault(matchId, null);
+        if (match == null) {
+            throw new IllegalArgumentException("Match between " + homeTeam + " and " + awayTeam + " is not running.");
+        }
+
+        runningMatches.remove(matchId);
+        return match;
     }
 
     @Override
