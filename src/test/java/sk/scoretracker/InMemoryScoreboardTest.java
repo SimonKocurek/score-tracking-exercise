@@ -168,4 +168,47 @@ class InMemoryScoreboardTest {
         Assertions.assertEquals(1, matches.size(), "Existing match should not be finished");
     }
 
+    @Test
+    void getSummaryCanReturnSummaryWhenNoMatchesAreRunning() {
+        // Given
+        var matches = new ConcurrentHashMap<String, Match>();
+        var scorebaord = new InMemoryScoreboard(matches);
+
+        // When
+        var summary = scorebaord.getSummary();
+
+        // Then
+        Assertions.assertEquals(0, summary.size(), "Summary should be empty");
+    }
+
+    @Test
+    void getSummaryCanReturnComplexSummary() {
+        // Given
+        var matches = new ConcurrentHashMap<String, Match>();
+        var scorebaord = new InMemoryScoreboard(matches);
+
+        var match = new Match("Mexico", 0, "Canada", 5, Instant.now().minusSeconds(3600));
+        var match2 = new Match("Spain", 10, "Brazil", 2, Instant.now().minusSeconds(3600));
+        var match3 = new Match("Germany", 2, "France", 2, Instant.now().minusSeconds(3600));
+        var match4 = new Match("Uruguay", 6, "Italy", 6, Instant.now());
+        var match5 = new Match("Argentina", 3, "Australia", 1, Instant.now());
+        matches.put(scorebaord.getMatchId(match.homeTeam(), match.awayTeam()), match);
+        matches.put(scorebaord.getMatchId(match2.homeTeam(), match2.awayTeam()), match2);
+        matches.put(scorebaord.getMatchId(match3.homeTeam(), match3.awayTeam()), match3);
+        matches.put(scorebaord.getMatchId(match4.homeTeam(), match4.awayTeam()), match4);
+        matches.put(scorebaord.getMatchId(match5.homeTeam(), match5.awayTeam()), match5);
+
+        // When
+        var summary = scorebaord.getSummary();
+
+        // Then
+        Assertions.assertEquals(5, summary.size(), "Summary should be of the same size as running matches");
+
+        Assertions.assertEquals(match4, summary.get(0), "Match with highest total score that is newest should be first.");
+        Assertions.assertEquals(match2, summary.get(1));
+        Assertions.assertEquals(match, summary.get(2));
+        Assertions.assertEquals(match5, summary.get(3));
+        Assertions.assertEquals(match3, summary.get(4));
+    }
+
 }
