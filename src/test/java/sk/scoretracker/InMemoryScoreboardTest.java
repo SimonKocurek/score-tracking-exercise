@@ -112,4 +112,60 @@ class InMemoryScoreboardTest {
         Assertions.assertEquals(1, matches.size(), "No new match should be started");
     }
 
+    @Test
+    void finishMatchCanFinishAllMatches() {
+        // Given
+        var matches = new ConcurrentHashMap<String, Match>();
+        var scorebaord = new InMemoryScoreboard(matches);
+
+        var match1 = new Match("Mexico", "Canada");
+        var match2 = new Match("Spain", "France");
+        matches.put(scorebaord.getMatchId(match1.homeTeam(), match1.awayTeam()), match1);
+        matches.put(scorebaord.getMatchId(match2.homeTeam(), match2.awayTeam()), match2);
+
+        // When
+        var returnedMatch1 = scorebaord.finishMatch(match1.homeTeam(), match1.awayTeam());
+        scorebaord.finishMatch(match2.homeTeam(), match2.awayTeam());
+
+        // Then
+        Assertions.assertEquals(0, matches.size(), "All matches should be finished");
+        Assertions.assertEquals(match1, returnedMatch1, "Match should not be modified when finished");
+    }
+
+    @Test
+    void finishMatchDoesOnlyFinishesSpecifiedMatch() {
+        // Given
+        var matches = new ConcurrentHashMap<String, Match>();
+        var scorebaord = new InMemoryScoreboard(matches);
+
+        var match1 = new Match("Mexico", "Canada");
+        var match2 = new Match("Spain", "France");
+        matches.put(scorebaord.getMatchId(match1.homeTeam(), match1.awayTeam()), match1);
+        matches.put(scorebaord.getMatchId(match2.homeTeam(), match2.awayTeam()), match2);
+
+        // When
+        var returnedMatch1 = scorebaord.finishMatch(match1.homeTeam(), match1.awayTeam());
+
+        // Then
+        Assertions.assertEquals(1, matches.size(), "Finishing one match should not finish all matches");
+        Assertions.assertEquals(match1, returnedMatch1, "Match should not be modified when finished");
+    }
+
+    @Test
+    void finishMatchFailsOnNonRunningMatch() {
+        // Given
+        var matches = new ConcurrentHashMap<String, Match>();
+        var scorebaord = new InMemoryScoreboard(matches);
+
+        var match = new Match("Mexico", "Canada");
+        matches.put(scorebaord.getMatchId(match.homeTeam(), match.awayTeam()), match);
+
+        // When, Then
+        Assertions.assertThrows(IllegalArgumentException.class, () ->
+                scorebaord.finishMatch("Spain", "France")
+        );
+
+        Assertions.assertEquals(1, matches.size(), "Existing match should not be finished");
+    }
+
 }
