@@ -20,6 +20,9 @@ public record Match(
         return new Match(homeTeam, homeScore, awayTeam, awayScore, startedAt);
     }
 
+    /**
+     * @return Home and away score summed up.
+     */
     int totalScore() {
         return homeScore + awayScore;
     }
