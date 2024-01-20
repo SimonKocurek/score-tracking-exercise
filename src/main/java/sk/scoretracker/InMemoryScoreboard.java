@@ -1,5 +1,6 @@
 package sk.scoretracker;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 
@@ -68,7 +69,20 @@ public class InMemoryScoreboard implements Scoreboard {
 
     @Override
     public List<Match> getSummary() {
-        throw new UnsupportedOperationException("Method not implemented yet.");
+        // If this method becomes the main bottleneck, it is possible to store pre-sorted results
+        // in TreeMap during `startMatch`, `updateMatchScore` and `finishMatch`. This would reduce
+        // the time complexity of this method from O(n log n) down to O(n)... but would increase
+        // complexities of other methods from O(1) to O(log n) and O(n) in the case of finish.
+
+        return runningMatches
+                .values()
+                .stream()
+                .sorted(
+                        Comparator
+                                .comparingInt(Match::totalScore)
+                                .thenComparing(Match::startedAt)
+                                .reversed()
+                ).toList();
     }
 
     String getMatchId(String homeTeam, String awayTeam) {

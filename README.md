@@ -15,3 +15,4 @@ Interview exercise - Implementation of the Live Football World Cup Score Board a
   already playing `B`, start won't be called with either `A` or `B` as a home/away team until the match is finished.)
 - Negative score is not a valid score in Football. (i.e., `Update("A", -1, "B", 0)` should fail).
 - Scores may never decrease in Football. (i.e., `Update("A", 1, "B", 0)`, `Update("A", 0, "B", 0)` should fail).
+- Performance of `getSummary` method is not way more important than the performance of methods that perform updates.

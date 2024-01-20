@@ -19,4 +19,8 @@ public record Match(
     public Match withUpdatedScore(int homeScore, int awayScore) {
         return new Match(homeTeam, homeScore, awayTeam, awayScore, startedAt);
     }
+
+    int totalScore() {
+        return homeScore + awayScore;
+    }
 }
