@@ -5,7 +5,12 @@ import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * Thread safe implementation using in-memory storage for matches.
+ * Concurrent implementation using in-memory storage for matches.
+ * <p>
+ * Can be used by multiple threads concurrently. However, does not guarantee
+ * synchronization of operations performed on a single match. (i.e, multiple
+ * threads can update scoreboard at the same time, but there should not be
+ * multiple updates on a particular match at the same time.)
  */
 public class InMemoryScoreboard implements Scoreboard {
 
