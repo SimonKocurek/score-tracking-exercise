@@ -32,4 +32,9 @@ public interface Scoreboard {
      */
     List<Match> getSummary();
 
+    /**
+     * @param teamName Currently playing team we want to get score of.
+     * @return Score of the team from its current match.
+     */
+    int getTeamScore(String teamName);
 }
