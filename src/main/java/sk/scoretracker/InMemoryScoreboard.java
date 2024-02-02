@@ -2,6 +2,7 @@ package sk.scoretracker;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
@@ -20,8 +21,19 @@ public class InMemoryScoreboard implements Scoreboard {
      */
     private final ConcurrentMap<String, Match> runningMatches;
 
+    /**
+     *
+     */
+    private final ConcurrentMap<String, Integer> teamScores;
+
     public InMemoryScoreboard(ConcurrentMap<String, Match> runningMatches) {
         this.runningMatches = runningMatches;
+
+        this.teamScores = new ConcurrentHashMap<>();
+        for (Match match : runningMatches.values()) {
+            teamScores.put(match.homeTeam(), match.homeScore());
+            teamScores.put(match.awayTeam(), match.awayScore());
+        }
     }
 
     @Override
@@ -33,6 +45,9 @@ public class InMemoryScoreboard implements Scoreboard {
         }
 
         var result = new Match(homeTeam, awayTeam);
+
+        teamScores.put(homeTeam, result.homeScore());
+        teamScores.put(awayTeam, result.awayScore());
         runningMatches.put(matchId, result);
         return result;
     }
@@ -55,6 +70,8 @@ public class InMemoryScoreboard implements Scoreboard {
         }
 
         var result = match.withUpdatedScore(homeScore, awayScore);
+        teamScores.put(homeTeam, result.homeScore());
+        teamScores.put(awayTeam, result.awayScore());
         runningMatches.put(matchId, result);
         return result;
     }
@@ -68,6 +85,8 @@ public class InMemoryScoreboard implements Scoreboard {
             throw new IllegalArgumentException("Match between " + homeTeam + " and " + awayTeam + " is not running.");
         }
 
+        teamScores.remove(homeTeam);
+        teamScores.remove(awayTeam);
         runningMatches.remove(matchId);
         return match;
     }
@@ -90,7 +109,12 @@ public class InMemoryScoreboard implements Scoreboard {
                 ).toList();
     }
 
-    String getMatchId(String homeTeam, String awayTeam) {
+    @Override
+    public int getTeamScore(String teamName) {
+        return teamScores.get(teamName);
+    }
+
+    static String getMatchId(String homeTeam, String awayTeam) {
         // Ideally we would want a nicer non-string unique ID, but for simplicity
         // we now operate only on Strings names of teams.
         return homeTeam + "#" + awayTeam;

@@ -215,12 +215,13 @@ class InMemoryScoreboardTest {
     void getTeamScoreCanGetScoreOfHomeTeam() {
         // Given
         var matches = new ConcurrentHashMap<String, Match>();
-        var scorebaord = new InMemoryScoreboard(matches);
 
         var match = new Match("Spain", 10, "Brazil", 2, Instant.now());
         var match2 = new Match("Germany", 2, "France", 2, Instant.now());
-        matches.put(scorebaord.getMatchId(match.homeTeam(), match.awayTeam()), match);
-        matches.put(scorebaord.getMatchId(match2.homeTeam(), match2.awayTeam()), match2);
+        matches.put(InMemoryScoreboard.getMatchId(match.homeTeam(), match.awayTeam()), match);
+        matches.put(InMemoryScoreboard.getMatchId(match2.homeTeam(), match2.awayTeam()), match2);
+
+        var scorebaord = new InMemoryScoreboard(matches);
 
         // When
         var score = scorebaord.getTeamScore("Spain");
