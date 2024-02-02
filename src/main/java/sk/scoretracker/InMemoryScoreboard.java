@@ -22,10 +22,14 @@ public class InMemoryScoreboard implements Scoreboard {
     private final ConcurrentMap<String, Match> runningMatches;
 
     /**
-     *
+     * Mapping of each team name to score in its current match.
      */
     private final ConcurrentMap<String, Integer> teamScores;
 
+    /**
+     * @param runningMatches Team matches should be filled in at the time of construction.
+     *                       Afterward `startMatch` method should be used instead.
+     */
     public InMemoryScoreboard(ConcurrentMap<String, Match> runningMatches) {
         this.runningMatches = runningMatches;
 

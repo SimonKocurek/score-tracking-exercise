@@ -53,12 +53,13 @@ class InMemoryScoreboardTest {
     void updateMatchScoreCanUpdateScoreMultipleTimes() {
         // Given
         var matches = new ConcurrentHashMap<String, Match>();
-        var scorebaord = new InMemoryScoreboard(matches);
 
         var matchBeforeUpdate = new Match("Mexico", "Canada");
         var matchBeforeUpdate2 = new Match("Spain", "France");
-        matches.put(scorebaord.getMatchId(matchBeforeUpdate.homeTeam(), matchBeforeUpdate.awayTeam()), matchBeforeUpdate);
-        matches.put(scorebaord.getMatchId(matchBeforeUpdate2.homeTeam(), matchBeforeUpdate2.awayTeam()), matchBeforeUpdate2);
+        matches.put(InMemoryScoreboard.getMatchId(matchBeforeUpdate.homeTeam(), matchBeforeUpdate.awayTeam()), matchBeforeUpdate);
+        matches.put(InMemoryScoreboard.getMatchId(matchBeforeUpdate2.homeTeam(), matchBeforeUpdate2.awayTeam()), matchBeforeUpdate2);
+
+        var scorebaord = new InMemoryScoreboard(matches);
 
         // When
         scorebaord.updateMatchScore(matchBeforeUpdate.homeTeam(), 1, matchBeforeUpdate.awayTeam(), 1);
@@ -68,7 +69,7 @@ class InMemoryScoreboardTest {
         // Then
         Assertions.assertEquals(2, matches.size(), "No new match should be started or terminated.");
 
-        var matchAfterUpdate = matches.get(scorebaord.getMatchId(matchBeforeUpdate.homeTeam(), matchBeforeUpdate.awayTeam()));
+        var matchAfterUpdate = matches.get(InMemoryScoreboard.getMatchId(matchBeforeUpdate.homeTeam(), matchBeforeUpdate.awayTeam()));
         Assertions.assertEquals(matchAfterUpdate, finalUpdatedScore, "Returned value should be the same as internally stored value.");
 
         Assertions.assertEquals(matchBeforeUpdate.homeTeam(), matchAfterUpdate.homeTeam());
@@ -82,10 +83,11 @@ class InMemoryScoreboardTest {
     void updateMatchScoreFailsIfMatchIsNotRunning() {
         // Given
         var matches = new ConcurrentHashMap<String, Match>();
-        var scorebaord = new InMemoryScoreboard(matches);
 
         var matchBeforeUpdate = new Match("Mexico", "Canada");
-        matches.put(scorebaord.getMatchId(matchBeforeUpdate.homeTeam(), matchBeforeUpdate.awayTeam()), matchBeforeUpdate);
+        matches.put(InMemoryScoreboard.getMatchId(matchBeforeUpdate.homeTeam(), matchBeforeUpdate.awayTeam()), matchBeforeUpdate);
+
+        var scorebaord = new InMemoryScoreboard(matches);
 
         // When, Then
         Assertions.assertThrows(IllegalArgumentException.class, () ->
@@ -99,10 +101,11 @@ class InMemoryScoreboardTest {
     void updateMatchScoreFailsIfScoreDecreases() {
         // Given
         var matches = new ConcurrentHashMap<String, Match>();
-        var scorebaord = new InMemoryScoreboard(matches);
 
         var matchBeforeUpdate = new Match("Mexico", 10, "Canada", 10, Instant.now());
-        matches.put(scorebaord.getMatchId(matchBeforeUpdate.homeTeam(), matchBeforeUpdate.awayTeam()), matchBeforeUpdate);
+        matches.put(InMemoryScoreboard.getMatchId(matchBeforeUpdate.homeTeam(), matchBeforeUpdate.awayTeam()), matchBeforeUpdate);
+
+        var scorebaord = new InMemoryScoreboard(matches);
 
         // When, Then
         Assertions.assertThrows(IllegalArgumentException.class, () ->
@@ -120,8 +123,8 @@ class InMemoryScoreboardTest {
 
         var match1 = new Match("Mexico", "Canada");
         var match2 = new Match("Spain", "France");
-        matches.put(scorebaord.getMatchId(match1.homeTeam(), match1.awayTeam()), match1);
-        matches.put(scorebaord.getMatchId(match2.homeTeam(), match2.awayTeam()), match2);
+        matches.put(InMemoryScoreboard.getMatchId(match1.homeTeam(), match1.awayTeam()), match1);
+        matches.put(InMemoryScoreboard.getMatchId(match2.homeTeam(), match2.awayTeam()), match2);
 
         // When
         var returnedMatch1 = scorebaord.finishMatch(match1.homeTeam(), match1.awayTeam());
@@ -136,12 +139,13 @@ class InMemoryScoreboardTest {
     void finishMatchDoesOnlyFinishesSpecifiedMatch() {
         // Given
         var matches = new ConcurrentHashMap<String, Match>();
-        var scorebaord = new InMemoryScoreboard(matches);
 
         var match1 = new Match("Mexico", "Canada");
         var match2 = new Match("Spain", "France");
-        matches.put(scorebaord.getMatchId(match1.homeTeam(), match1.awayTeam()), match1);
-        matches.put(scorebaord.getMatchId(match2.homeTeam(), match2.awayTeam()), match2);
+        matches.put(InMemoryScoreboard.getMatchId(match1.homeTeam(), match1.awayTeam()), match1);
+        matches.put(InMemoryScoreboard.getMatchId(match2.homeTeam(), match2.awayTeam()), match2);
+
+        var scorebaord = new InMemoryScoreboard(matches);
 
         // When
         var returnedMatch1 = scorebaord.finishMatch(match1.homeTeam(), match1.awayTeam());
@@ -155,10 +159,11 @@ class InMemoryScoreboardTest {
     void finishMatchFailsOnNonRunningMatch() {
         // Given
         var matches = new ConcurrentHashMap<String, Match>();
-        var scorebaord = new InMemoryScoreboard(matches);
 
         var match = new Match("Mexico", "Canada");
-        matches.put(scorebaord.getMatchId(match.homeTeam(), match.awayTeam()), match);
+        matches.put(InMemoryScoreboard.getMatchId(match.homeTeam(), match.awayTeam()), match);
+
+        var scorebaord = new InMemoryScoreboard(matches);
 
         // When, Then
         Assertions.assertThrows(IllegalArgumentException.class, () ->
@@ -185,18 +190,19 @@ class InMemoryScoreboardTest {
     void getSummaryCanReturnComplexSummary() {
         // Given
         var matches = new ConcurrentHashMap<String, Match>();
-        var scorebaord = new InMemoryScoreboard(matches);
 
         var match = new Match("Mexico", 0, "Canada", 5, Instant.now().minusSeconds(3600));
         var match2 = new Match("Spain", 10, "Brazil", 2, Instant.now().minusSeconds(3600));
         var match3 = new Match("Germany", 2, "France", 2, Instant.now().minusSeconds(3600));
         var match4 = new Match("Uruguay", 6, "Italy", 6, Instant.now());
         var match5 = new Match("Argentina", 3, "Australia", 1, Instant.now());
-        matches.put(scorebaord.getMatchId(match.homeTeam(), match.awayTeam()), match);
-        matches.put(scorebaord.getMatchId(match2.homeTeam(), match2.awayTeam()), match2);
-        matches.put(scorebaord.getMatchId(match3.homeTeam(), match3.awayTeam()), match3);
-        matches.put(scorebaord.getMatchId(match4.homeTeam(), match4.awayTeam()), match4);
-        matches.put(scorebaord.getMatchId(match5.homeTeam(), match5.awayTeam()), match5);
+        matches.put(InMemoryScoreboard.getMatchId(match.homeTeam(), match.awayTeam()), match);
+        matches.put(InMemoryScoreboard.getMatchId(match2.homeTeam(), match2.awayTeam()), match2);
+        matches.put(InMemoryScoreboard.getMatchId(match3.homeTeam(), match3.awayTeam()), match3);
+        matches.put(InMemoryScoreboard.getMatchId(match4.homeTeam(), match4.awayTeam()), match4);
+        matches.put(InMemoryScoreboard.getMatchId(match5.homeTeam(), match5.awayTeam()), match5);
+
+        var scorebaord = new InMemoryScoreboard(matches);
 
         // When
         var summary = scorebaord.getSummary();
