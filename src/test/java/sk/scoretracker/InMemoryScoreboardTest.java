@@ -223,7 +223,7 @@ class InMemoryScoreboardTest {
         var matches = new ConcurrentHashMap<String, Match>();
 
         var match = new Match("Spain", 10, "Brazil", 2, Instant.now());
-        var match2 = new Match("Germany", 2, "France", 2, Instant.now());
+        var match2 = new Match("Germany", 2, "France", 3, Instant.now());
         matches.put(InMemoryScoreboard.getMatchId(match.homeTeam(), match.awayTeam()), match);
         matches.put(InMemoryScoreboard.getMatchId(match2.homeTeam(), match2.awayTeam()), match2);
 
@@ -234,6 +234,25 @@ class InMemoryScoreboardTest {
 
         // Then
         Assertions.assertEquals(10, score);
+    }
+
+    @Test
+    void getTeamScoreCanGetScoreOfAwayTeam() {
+        // Given
+        var matches = new ConcurrentHashMap<String, Match>();
+
+        var match = new Match("Spain", 10, "Brazil", 2, Instant.now());
+        var match2 = new Match("Germany", 2, "France", 3, Instant.now());
+        matches.put(InMemoryScoreboard.getMatchId(match.homeTeam(), match.awayTeam()), match);
+        matches.put(InMemoryScoreboard.getMatchId(match2.homeTeam(), match2.awayTeam()), match2);
+
+        var scorebaord = new InMemoryScoreboard(matches);
+
+        // When
+        var score = scorebaord.getTeamScore("France");
+
+        // Then
+        Assertions.assertEquals(3, score);
     }
 
 }
